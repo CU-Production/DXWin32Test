@@ -15,11 +15,20 @@ ID3D11DeviceContext* g_devcon;
 ID3D11RenderTargetView* g_backbuffer;
 ID3D11VertexShader* g_VS;
 ID3D11PixelShader* g_PS;
+ID3D11InputLayout* g_layout;
+ID3D11Buffer* g_vertexbuffer;
+
+struct VERTEX
+{
+    float X, Y, Z;
+    float R, G, B, A;
+};
 
 void InitD3D(HWND hWnd);
 void RenderFrame();
 void CleanD3D();
 void InitPipeline();
+void InitGraphics();
 
 LRESULT CALLBACK WindowProc(HWND hWnd,
                             UINT message,
@@ -172,6 +181,7 @@ void InitD3D(HWND hWnd)
     g_devcon->RSSetViewports(1, &viewport);
 
     InitPipeline();
+    InitGraphics();
 }
 
 void CleanD3D()
@@ -180,6 +190,8 @@ void CleanD3D()
 
     g_VS->Release();
     g_PS->Release();
+    g_vertexbuffer->Release();
+    g_layout->Release();
     g_swapchain->Release();
     g_dev->Release();
     g_devcon->Release();
@@ -191,6 +203,15 @@ void RenderFrame()
     float color[4] = {0.0f, 0.2f, 0.4f, 1.0f};
     g_devcon->ClearRenderTargetView(g_backbuffer, color);
 
+    {
+        UINT stride = sizeof(VERTEX);
+        UINT offset = 0;
+
+        g_devcon->IASetVertexBuffers(0, 1, &g_vertexbuffer, &stride, &offset);
+        g_devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        g_devcon->Draw(3, 0);
+    }
+
     g_swapchain->Present(1, 0);
 }
 
@@ -200,11 +221,6 @@ void InitPipeline()
     ID3DBlob* pErrorBlob;
 
     D3DCompile(g_shader, strlen(g_shader), nullptr, nullptr, nullptr, "VSmain", "vs_5_0", 0, 0, &pVSblob, &pErrorBlob);
-    if (pVSblob == nullptr)
-    {
-        const char* errmsg = (const char*)pErrorBlob->GetBufferPointer();
-    }
-
     D3DCompile(g_shader, strlen(g_shader), nullptr, nullptr, nullptr, "PSmain", "ps_5_0", 0, 0, &pPSblob, &pErrorBlob);
 
     g_dev->CreateVertexShader(pVSblob->GetBufferPointer(), pVSblob->GetBufferSize(), NULL, &g_VS);
@@ -213,6 +229,40 @@ void InitPipeline()
     g_devcon->VSSetShader(g_VS, NULL, 0);
     g_devcon->PSSetShader(g_PS, NULL, 0);
 
+    D3D11_INPUT_ELEMENT_DESC ied[] =
+    {
+            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+
+    g_dev->CreateInputLayout(ied, 2, pVSblob->GetBufferPointer(), pVSblob->GetBufferSize(), &g_layout);
+    g_devcon->IASetInputLayout(g_layout);
+
     pVSblob->Release();
     pPSblob->Release();
+}
+
+void InitGraphics()
+{
+    VERTEX OurVertices[] =
+    {
+        {0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+        {0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f},
+        {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f},
+    };
+
+    D3D11_BUFFER_DESC bd;
+    ZeroMemory(&bd, sizeof(D3D11_BUFFER_DESC));
+
+    bd.Usage = D3D11_USAGE_DYNAMIC;
+    bd.ByteWidth = sizeof(VERTEX) * 3;
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    g_dev->CreateBuffer(&bd, NULL, &g_vertexbuffer);
+
+    D3D11_MAPPED_SUBRESOURCE ms;
+    g_devcon->Map(g_vertexbuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+    memcpy(ms.pData, OurVertices, sizeof(OurVertices));
+    g_devcon->Unmap(g_vertexbuffer, NULL);
 }
