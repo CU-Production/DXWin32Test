@@ -9,8 +9,10 @@
 IDXGISwapChain* g_swapchain;
 ID3D11Device* g_dev;
 ID3D11DeviceContext* g_devcon;
+ID3D11RenderTargetView* g_backbuffer;
 
 void InitD3D(HWND hWnd);
+void RenderFrame();
 void CleanD3D();
 
 LRESULT CALLBACK WindowProc(HWND hWnd,
@@ -40,7 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     RegisterClassExW(&wc);
 
-    RECT wr = {0, 0, 500, 400};
+    RECT wr = {0, 0, 800, 600};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
     hWnd = CreateWindowExW(NULL,
@@ -72,10 +74,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
             if (msg.message == WM_QUIT)
                 break;
         }
-        else
-        {
 
-        }
+        RenderFrame();
     }
 
     CleanD3D();
@@ -121,6 +121,23 @@ void InitD3D(HWND hWnd)
                                   &g_dev,
                                   NULL,
                                   &g_devcon);
+
+    ID3D11Texture2D* pBackBuffer;
+    g_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+
+    g_dev->CreateRenderTargetView(pBackBuffer, NULL, &g_backbuffer);
+
+    g_devcon->OMSetRenderTargets(1, &g_backbuffer, NULL);
+
+    D3D11_VIEWPORT viewport;
+    ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = 800;
+    viewport.Height = 600;
+
+    g_devcon->RSSetViewports(1, &viewport);
 }
 
 void CleanD3D()
@@ -128,4 +145,13 @@ void CleanD3D()
     g_swapchain->Release();
     g_dev->Release();
     g_devcon->Release();
+    g_backbuffer->Release();
+}
+
+void RenderFrame()
+{
+    float color[4] = {0.0f, 0.2f, 0.4f, 1.0f};
+    g_devcon->ClearRenderTargetView(g_backbuffer, color);
+
+    g_swapchain->Present(1, 0);
 }
