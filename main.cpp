@@ -1,5 +1,10 @@
 #include <windows.h>
 #include <windowsx.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
+
+#pragma comment(lib, "d3d11")
+#pragma comment(lib, "d3dcompiler")
 
 LRESULT CALLBACK WindowProc(HWND hWnd,
                             UINT message,
@@ -14,26 +19,26 @@ int WINAPI WinMain(HINSTANCE hInstance,
 //    MessageBox(NULL, "Hello World!", "Just another Hello World program!", MB_ICONEXCLAMATION | MB_OK);
 
     HWND hWnd; // the handle for the window, filled by a function
-    WNDCLASSEX wc; // this struct holds information for the window class
+    WNDCLASSEXW wc; // this struct holds information for the window class
 
-    ZeroMemory(&wc, sizeof(WNDCLASSEX));
+    ZeroMemory(&wc, sizeof(WNDCLASSEXW));
 
-    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    wc.lpszClassName = "WindowClass1";
+    wc.lpszClassName = L"WindowClass1";
 
-    RegisterClassEx(&wc);
+    RegisterClassExW(&wc);
 
     RECT wr = {0, 0, 500, 400};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
-    hWnd = CreateWindowEx(NULL,
-                          "WindowClass1",    // name of the window class
-                          "Our First Windowed Program",   // title of the window
+    hWnd = CreateWindowExW(NULL,
+                          L"WindowClass1",    // name of the window class
+                          L"Our First Windowed Program",   // title of the window
                           WS_OVERLAPPEDWINDOW,    // window style
                           300,    // x-position of the window
                           300,    // y-position of the window
