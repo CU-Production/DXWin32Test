@@ -13,15 +13,41 @@ IDXGISwapChain* g_swapchain;
 ID3D11Device* g_dev;
 ID3D11DeviceContext* g_devcon;
 ID3D11RenderTargetView* g_backbuffer;
+ID3D11VertexShader* g_VS;
+ID3D11PixelShader* g_PS;
 
 void InitD3D(HWND hWnd);
 void RenderFrame();
 void CleanD3D();
+void InitPipeline();
 
 LRESULT CALLBACK WindowProc(HWND hWnd,
                             UINT message,
                             WPARAM wParam,
                             LPARAM lParam);
+
+static const char* g_shader = R"(
+struct VSOut
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+
+VSOut VSmain(float4 position : POSITION, float4 color : COLOR)
+{
+    VSOut output;
+
+    output.position = position;
+    output.color = color;
+
+    return output;
+}
+
+float4 PSmain(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
+{
+    return color;
+}
+)";
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -144,12 +170,16 @@ void InitD3D(HWND hWnd)
     viewport.Height = SCREEN_HEIGHT;
 
     g_devcon->RSSetViewports(1, &viewport);
+
+    InitPipeline();
 }
 
 void CleanD3D()
 {
     g_swapchain->SetFullscreenState(FALSE, NULL); // switch to windowed mode
 
+    g_VS->Release();
+    g_PS->Release();
     g_swapchain->Release();
     g_dev->Release();
     g_devcon->Release();
@@ -162,4 +192,27 @@ void RenderFrame()
     g_devcon->ClearRenderTargetView(g_backbuffer, color);
 
     g_swapchain->Present(1, 0);
+}
+
+void InitPipeline()
+{
+    ID3DBlob *pVSblob, *pPSblob;
+    ID3DBlob* pErrorBlob;
+
+    D3DCompile(g_shader, strlen(g_shader), nullptr, nullptr, nullptr, "VSmain", "vs_5_0", 0, 0, &pVSblob, &pErrorBlob);
+    if (pVSblob == nullptr)
+    {
+        const char* errmsg = (const char*)pErrorBlob->GetBufferPointer();
+    }
+
+    D3DCompile(g_shader, strlen(g_shader), nullptr, nullptr, nullptr, "PSmain", "ps_5_0", 0, 0, &pPSblob, &pErrorBlob);
+
+    g_dev->CreateVertexShader(pVSblob->GetBufferPointer(), pVSblob->GetBufferSize(), NULL, &g_VS);
+    g_dev->CreatePixelShader(pPSblob->GetBufferPointer(), pPSblob->GetBufferSize(), NULL, &g_PS);
+
+    g_devcon->VSSetShader(g_VS, NULL, 0);
+    g_devcon->PSSetShader(g_PS, NULL, 0);
+
+    pVSblob->Release();
+    pPSblob->Release();
 }
