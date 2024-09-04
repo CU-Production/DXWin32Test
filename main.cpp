@@ -6,6 +6,9 @@
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "d3dcompiler")
 
+#define SCREEN_WIDTH  800
+#define SCREEN_HEIGHT 600
+
 IDXGISwapChain* g_swapchain;
 ID3D11Device* g_dev;
 ID3D11DeviceContext* g_devcon;
@@ -42,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     RegisterClassExW(&wc);
 
-    RECT wr = {0, 0, 800, 600};
+    RECT wr = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
     hWnd = CreateWindowExW(NULL,
@@ -104,10 +107,13 @@ void InitD3D(HWND hWnd)
 
     scd.BufferCount = 1;                                    // one back buffer
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
+    scd.BufferDesc.Width = SCREEN_WIDTH;                    // set the back buffer width
+    scd.BufferDesc.Height = SCREEN_HEIGHT;                  // set the back buffer height
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
     scd.OutputWindow = hWnd;                                // the window to be used
     scd.SampleDesc.Count = 4;                               // how many multisamples
     scd.Windowed = TRUE;                                    // windowed/full-screen mode
+    scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;     // allow full-screen switching
 
     D3D11CreateDeviceAndSwapChain(NULL,
                                   D3D_DRIVER_TYPE_HARDWARE,
@@ -134,14 +140,16 @@ void InitD3D(HWND hWnd)
 
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = 800;
-    viewport.Height = 600;
+    viewport.Width = SCREEN_WIDTH;
+    viewport.Height = SCREEN_HEIGHT;
 
     g_devcon->RSSetViewports(1, &viewport);
 }
 
 void CleanD3D()
 {
+    g_swapchain->SetFullscreenState(FALSE, NULL); // switch to windowed mode
+
     g_swapchain->Release();
     g_dev->Release();
     g_devcon->Release();
