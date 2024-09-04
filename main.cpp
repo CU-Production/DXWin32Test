@@ -28,14 +28,17 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     RegisterClassEx(&wc);
 
+    RECT wr = {0, 0, 500, 400};
+    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+
     hWnd = CreateWindowEx(NULL,
                           "WindowClass1",    // name of the window class
                           "Our First Windowed Program",   // title of the window
                           WS_OVERLAPPEDWINDOW,    // window style
                           300,    // x-position of the window
                           300,    // y-position of the window
-                          500,    // width of the window
-                          400,    // height of the window
+                          wr.right - wr.left,    // width of the window
+                          wr.bottom - wr.top,    // height of the window
                           NULL,    // we have no parent window, NULL
                           NULL,    // we aren't using menus, NULL
                           hInstance,    // application handle
@@ -43,13 +46,24 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     ShowWindow(hWnd, nShowCmd);
 
-    MSG msg;
+    MSG msg = {0};
 
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (TRUE)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+
+            if (msg.message == WM_QUIT)
+                break;
+        }
+        else
+        {
+
+        }
     }
+
 
     return msg.wParam;
 }
