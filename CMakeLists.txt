@@ -12,6 +12,9 @@ target_link_libraries(DX11glfw PRIVATE glfw)
 
 add_executable(DX12win32 WIN32 mainwin32dx12.cpp)
 
+add_executable(DX12glfw mainglfwdx12.cpp)
+target_link_libraries(DX12glfw PRIVATE glfw)
+
 add_executable(SlangGlfw mainglfwslang.cpp gfx-util/shader-cursor.cpp gfx-util/shader-cursor.h)
 target_link_libraries(SlangGlfw PRIVATE glfw SlangGFX)
 add_custom_command(
