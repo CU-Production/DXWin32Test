@@ -20,3 +20,11 @@ add_executable(DXtest WIN32 main.cpp)
 
 add_executable(DX11glfw mainglfwdx11.cpp)
 target_link_libraries(DX11glfw PRIVATE glfw)
+
+add_executable(SlangGlfw mainglfwslang.cpp)
+target_link_libraries(SlangGlfw PRIVATE glfw SlangGFX)
+add_custom_command(
+    TARGET SlangGlfw POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/slang/bin" "${CMAKE_CURRENT_BINARY_DIR}/"
+    VERBATIM
+)
