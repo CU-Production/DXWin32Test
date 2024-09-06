@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(3rd_party)
 
-#add_executable(DXtest main.cpp)
-add_executable(DXtest WIN32 main.cpp)
+#add_executable(DX11win32 main.cpp)
+add_executable(DX11win32 WIN32 mainwin32dx11.cpp)
 #if (MSVC)
 #    target_compile_options(DXtest PRIVATE /W4 /WX /SUBSYSTEM:WINDOWS)
 #else ()
