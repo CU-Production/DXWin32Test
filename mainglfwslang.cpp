@@ -98,9 +98,9 @@ int main()
         gfx::gfxSetDebugCallback(&gCallback);
 
         gfx::IDevice::Desc deviceDesc = {};
-        deviceDesc.deviceType = gfx::DeviceType::Default;
+//        deviceDesc.deviceType = gfx::DeviceType::Default;
 //        deviceDesc.deviceType = gfx::DeviceType::DirectX12;
-//        deviceDesc.deviceType = gfx::DeviceType::Vulkan;
+        deviceDesc.deviceType = gfx::DeviceType::Vulkan;
         gfx::gfxCreateDevice(&deviceDesc, gDevice.writeRef());
 
         auto deviceInfo = gDevice->getDeviceInfo();
