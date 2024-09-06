@@ -5,21 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(3rd_party)
 
-#add_executable(DX11win32 main.cpp)
 add_executable(DX11win32 WIN32 mainwin32dx11.cpp)
-#if (MSVC)
-#    target_compile_options(DXtest PRIVATE /W4 /WX /SUBSYSTEM:WINDOWS)
-#else ()
-#    error("Only support MSVC!!!")
-#endif ()
-
-#target_compile_options(${TARGET_NAME} PRIVATE
-#    $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-#    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
-#)
 
 add_executable(DX11glfw mainglfwdx11.cpp)
 target_link_libraries(DX11glfw PRIVATE glfw)
+
+add_executable(DX12win32 WIN32 mainwin32dx12.cpp)
 
 add_executable(SlangGlfw mainglfwslang.cpp gfx-util/shader-cursor.cpp gfx-util/shader-cursor.h)
 target_link_libraries(SlangGlfw PRIVATE glfw SlangGFX)
