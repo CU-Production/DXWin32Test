@@ -19,3 +19,4 @@ add_executable(DXtest WIN32 main.cpp)
 #)
 
 add_executable(DX11glfw mainglfwdx11.cpp)
+target_link_libraries(DX11glfw PRIVATE glfw)

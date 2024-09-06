@@ -1,4 +1,6 @@
-#include <windows.h>
+#include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
@@ -29,11 +31,6 @@ void CleanD3D();
 void InitPipeline();
 void InitGraphics();
 
-LRESULT CALLBACK WindowProc(HWND hWnd,
-                            UINT message,
-                            WPARAM wParam,
-                            LPARAM lParam);
-
 static const char* g_shader = R"(
 struct VSOut
 {
@@ -59,54 +56,18 @@ float4 PSmain(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
 
 int main()
 {
-//    MessageBox(NULL, "Hello World!", "Just another Hello World program!", MB_ICONEXCLAMATION | MB_OK);
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "GLFW + DX11", nullptr, nullptr);
 
-    HWND hWnd; // the handle for the window, filled by a function
-    WNDCLASSEXW wc; // this struct holds information for the window class
+    InitD3D(glfwGetWin32Window(window));
 
-    ZeroMemory(&wc, sizeof(WNDCLASSEXW));
-
-    wc.cbSize = sizeof(WNDCLASSEXW);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = GetModuleHandle(nullptr);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    wc.lpszClassName = L"WindowClass1";
-
-    RegisterClassExW(&wc);
-
-    RECT wr = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-
-    hWnd = CreateWindowExW(NULL,
-                           L"WindowClass1",    // name of the window class
-                           L"Our First Windowed Program",   // title of the window
-                           WS_OVERLAPPEDWINDOW,    // window style
-                           300,    // x-position of the window
-                           300,    // y-position of the window
-                           wr.right - wr.left,    // width of the window
-                           wr.bottom - wr.top,    // height of the window
-                           NULL,    // we have no parent window, NULL
-                           NULL,    // we aren't using menus, NULL
-                           wc.hInstance,    // application handle
-                           NULL);    // used with multiple windows, NULL
-
-    ShowWindow(hWnd, SW_SHOWDEFAULT);
-
-    InitD3D(hWnd);
-
-    MSG msg = {0};
-
-    while (TRUE)
+    while (!glfwWindowShouldClose(window))
     {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        glfwPollEvents();
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-
-            if (msg.message == WM_QUIT)
-                break;
+            glfwSetWindowShouldClose(window, true);
         }
 
         RenderFrame();
@@ -114,21 +75,8 @@ int main()
 
     CleanD3D();
 
-    return msg.wParam;
-}
-
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
-            return 0;
-        } break;
-    }
-
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    glfwTerminate();
+    return EXIT_SUCCESS;
 }
 
 void InitD3D(HWND hWnd)
