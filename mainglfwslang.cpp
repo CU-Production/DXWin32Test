@@ -104,7 +104,7 @@ int main()
         gfx::gfxCreateDevice(&deviceDesc, gDevice.writeRef());
 
         auto deviceInfo = gDevice->getDeviceInfo();
-        std::cout << "Using Device (" << deviceInfo.apiName << ": " << deviceInfo.adapterName << ")";
+        std::cout << "Using Device (" << deviceInfo.apiName << ": " << deviceInfo.adapterName << ")" << std::endl;
 
         gfx::ICommandQueue::Desc queueDesc = {};
         queueDesc.type = gfx::ICommandQueue::QueueType::Graphics;
