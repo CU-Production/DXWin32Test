@@ -3,6 +3,8 @@ project(DXtest)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_subdirectory(3rd_party)
+
 #add_executable(DXtest main.cpp)
 add_executable(DXtest WIN32 main.cpp)
 #if (MSVC)
@@ -15,3 +17,5 @@ add_executable(DXtest WIN32 main.cpp)
 #    $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
 #    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 #)
+
+add_executable(DX11glfw mainglfwdx11.cpp)
