@@ -1,3 +1,4 @@
 3rd_party/slang/*.dll filter=lfs diff=lfs merge=lfs -text
 3rd_party/slang/*.exe filter=lfs diff=lfs merge=lfs -text
 3rd_party/slang/*.lib filter=lfs diff=lfs merge=lfs -text
+3rd_party/filament/*.lib filter=lfs diff=lfs merge=lfs -text
