@@ -12,3 +12,9 @@ add_library(SlangGFX INTERFACE)
 target_include_directories(SlangGFX INTERFACE slang/include)
 target_link_directories(SlangGFX INTERFACE slang/lib)
 target_link_libraries(SlangGFX INTERFACE slang gfx)
+
+# Filament
+add_library(Filament INTERFACE)
+target_include_directories(Filament INTERFACE filament/include)
+target_link_directories(Filament INTERFACE filament/lib/x86_64/md)
+target_link_libraries(Filament INTERFACE backend bluegl opengl32 bluevk filabridge filaflat filamat filament backend ibl utils geometry smol-v)
